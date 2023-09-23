@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      function isMobileDevice() {
+        return /^.*(iPhone|iPod|iPad|Android).*/.test(navigator.userAgent);
+      }
+    </script>
+    <script>
+      (function () {
+        try {
+          if (isMobileDevice() && isAbleApplyPrefersColorScheme()) {
+            document.querySelector("html").classList.add("DARK_THEME");
+          }
+        } catch (e) {}
+
+        function isAbleApplyPrefersColorScheme() {
+          if (window.matchMedia("(prefers-color-scheme)").matches === false) {
+            return false;
+          }
+
+          var userAgent = navigator.userAgent;
+
+          if (userAgent.indexOf("NAVER") > -1) {
+            if (/.*NAVER\([a-zA-Z]*;\s[a-zA-Z]*;\s([0-9]*);/.test(userAgent)) {
+              return Number(RegExp.$1) >= 1000;
+            }
+          } else {
+            return document.cookie.indexOf("NSCS=1") > -1;
+          }
+
+          return false;
+        }
+      })();
+    </script>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no,target-densitydpi=medium-dpi"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://ssl.pstatic.net/static.news/mnews/resources/20230920_082039/css/generated/other.css"
+    />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="news/m/2023/favicon/favicon.ico"
+    />
+
+    <script>
+      document.documentElement.setAttribute(
+        "data-useragent",
+        navigator.userAgent
+      );
+
+      function showNoImage(elImg, type) {
+        switch (type) {
+          case "remove":
+            try {
+              elImg.parentNode.removeChild(elImg);
+            } catch (e) {}
+            break;
+
+          case "removeParent":
+            try {
+              elImg.parentNode.outerHTML = "";
+            } catch (e) {}
+            break;
+
+          case "alt":
+            elImg.outerHTML = (
+              '<span class="noimage_text {imgClassName}">' +
+              (elImg.alt || "") +
+              "</span>"
+            ).replace("{imgClassName}", elImg.className);
+            break;
+
+          case "class":
+            var outerHTMLSource =
+              Number(elImg.getAttribute("height")) > 0
+                ? '<span class="noimage_wrap {imgClassName}" style="height:' +
+                  elImg.getAttribute("height") +
+                  'px;"><span class="noimage"></span></span>'
+                : '<span class="noimage_wrap {imgClassName}"><span class="noimage"></span></span>';
+            elImg.outerHTML = outerHTMLSource.replace(
+              "{imgClassName}",
+              elImg.className
+            );
+            break;
+
+          default:
+            elImg.outerHTML =
+              Number(elImg.getAttribute("height")) > 0
+                ? '<span class="noimage_wrap" style="height:' +
+                  elImg.getAttribute("height") +
+                  'px;"><span class="noimage"></span></span>'
+                : '<span class="noimage_wrap"><span class="noimage"></span></span>';
+        }
+      }
+
+      function doAfterLoadEnd(callback, callbackOnPersisted) {
+        var eventName = "onpageshow" in window ? "pageshow" : "load";
+
+        callback = callback || function () {};
+        callbackOnPersisted = callbackOnPersisted || function () {};
+
+        window.addEventListener(eventName, function (e) {
+          try {
+            if (Boolean(e.persisted)) {
+              callbackOnPersisted();
+              return;
+            }
+          } catch (e) {}
+
+          callback();
+        });
+      }
+    </script>
+    <title>네이버 뉴스</title>
+  </head>
+  <body class="as_mp_layout as_body_error">
+    <div class="u_skip"><a href="#ct">본문 바로가기</a></div>
+
+    <section class="news_header">
+      <header class="nh_header" role="banner">
+        <div class="Ngnb">
+          <div class="Ngnb_inner">
+            <div class="Ngnb_both">
+              <div class="Ngnb_left">
+                <span class="Ngnb_logo"
+                  ><a
+                    href="https://m.naver.com"
+                    data-mpurl='{"m":"https://m.naver.com","p":"https://www.naver.com"}'
+                    onclick="nclk(event,'gnb.naver','','');"
+                    class="Nlogo_link"
+                    ><span class="Nicon_logo">NAVER</span></a
+                  ></span
+                >
+                <div class="Ngnb_service">
+                  <h1 class="Nservice_item">
+                    <a
+                      href="https://m.news.naver.com"
+                      data-mpurl='{"m":"https://m.news.naver.com","p":"https://news.naver.com"}'
+                      onclick="nclk(event,'gnb.news','','');"
+                      ><span class="Nicon_service">뉴스</span></a
+                    >
+                  </h1>
+                  <span class="Nservice_subitem">
+                    <a
+                      href="https://m.entertain.naver.com/home"
+                      data-mpurl='{"m":"https://m.entertain.naver.com/home","p":"https://entertain.naver.com/home"}'
+                      onclick="nclk(event,'gnb.enter','','');"
+                    >
+                      <span class="Nicon_family Nicon_entertain">연예</span>
+                    </a>
+                  </span>
+                  <span class="Nservice_subitem">
+                    <a
+                      href="https://m.sports.naver.com/"
+                      data-mpurl='{"m":"https://m.sports.naver.com/","p":"https://sports.news.naver.com/index"}'
+                      onclick="nclk(event,'gnb.sports','','');"
+                    >
+                      <span class="Nicon_family Nicon_sports">스포츠</span>
+                    </a>
+                  </span>
+                  <span class="Nservice_subitem">
+                    <a
+                      href="https://weather.naver.com/"
+                      onclick="nclk(event,'gnb.weather','','');"
+                    >
+                      <span class="Nicon_family Nicon_weather">날씨</span>
+                    </a>
+                  </span>
+                  <span class="Nservice_subitem">
+                    <a
+                      href="https://contents.premium.naver.com/"
+                      onclick="nclk(event,'gnb.premium','','');"
+                    >
+                      <span class="Nicon_family Nicon_premium">프리미엄</span>
+                    </a>
+                  </span>
+                </div>
+              </div>
+
+              <div class="Ngnb_right">
+                <div class="Ngnb_group">
+                  <div id="gnb" class="gnb_dark_type2"></div>
+                </div>
+
+                <div class="Ngnb_search is_hidden _search_content"></div>
+                <div class="Ngnb_tool">
+                  <a
+                    href="javascript:;"
+                    class="Ntool_button _search_content_toggle_btn"
+                    onclick="nclk(event,'gnb.sch','','');"
+                    ><span class="Nicon_search">검색</span></a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+    </section>
+    <hr />
+    <!-- ct -->
+    <div id="ct" role="main" class="main_wrap">
+      <div class="main_container">
+        <section class="main_content">
+          <h3 class="blind">콘텐츠</h3>
+          <div class="error_msg">
+            <h1 id="invalidParameter">페이지를 찾을 수 없습니다.</h1>
+            <p>
+              입력한 주소가 잘못되었거나, 사용이 일시 중단되어<br />요청한
+              페이지를 찾을 수 없습니다.<br />서비스 이용에 불편을 드려
+              죄송합니다.
+            </p>
+            <div class="ac">
+              <a href="javascript:history.back();" class="btn">이전</a>
+              <a
+                href="https://media.naver.com/press"
+                data-mpurl='{"m":"https://media.naver.com/press","p":"https://news.naver.com"}'
+                class="btn"
+                >언론사별</a
+              >
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <!-- //ct -->
+    <!-- footer -->
+    <div class="mp_footer">
+      <div class="f_maininfo">
+        <div class="f_maininfoinner">
+          <a
+            href="javascript:;"
+            class="r_pg_top _go_top"
+            id="goTop"
+            onclick="nclk(event,'fot.top','','');"
+            >맨위로</a
+          >
+          <footer role="contentinfo">
+            <p id="u_ftlkw" class="u_ftlkw _footer_login">
+              <a
+                class="u_ftlk"
+                href="https://m.naver.com/services.html"
+                data-mpurl='{"m":"https://m.naver.com/services.html","p":"https://www.naver.com/more.html"}'
+                onclick="nclk(event,'fot.serviceall','','');"
+                >전체서비스</a
+              >
+            </p>
+            <p class="u_cr">
+              <span class="u_ftm">
+                <span class="u_cri u_cri_v1"
+                  ><a
+                    href="https://m.news.naver.com/ombudsman/index"
+                    data-mpurl='{"m":"https://m.news.naver.com/ombudsman/index","p":"https://news.naver.com/main/ombudsman/index.naver"}'
+                    class="u_cra"
+                    id="ombudsmanLink"
+                    onclick="nclk(event,'fot.guide','','');"
+                    >서비스안내</a
+                  ></span
+                >
+                <span class="u_cri u_cri_v1"
+                  ><a
+                    href="https://help.naver.com/alias/news/news_007.naver"
+                    data-mpurl='{"m":"https://help.naver.com/alias/news/news_007.naver","p":"https://help.naver.com/alias/news/news_007.naver"}'
+                    class="u_cra"
+                    id="guideLink"
+                    onclick="nclk(event,'fot.help','','');"
+                    >뉴스도움말</a
+                  ></span
+                >
+                <span class="u_cri u_cri_v1"
+                  ><a
+                    href="https://help.naver.com/alias/news/news_001.naver"
+                    data-mpurl='{"m":"https://help.naver.com/alias/news/news_001.naver","p":"https://help.naver.com/alias/news/news_001.naver"}'
+                    class="u_cra"
+                    onclick="nclk(event,'fot.report','','');"
+                    >문제신고</a
+                  ></span
+                >
+              </span>
+              <span class="u_copyright"
+                >본 콘텐츠의 저작권은 제공처 또는 네이버에 있으며, 이를 무단<br />이용하는
+                경우 저작권법 등에 따라 법적책임을 질 수 있습니다.</span
+              >
+              <span class="u_cri"
+                ><span class="copymark">ⓒ</span>
+                <a
+                  href="https://www.navercorp.com"
+                  class="u_cra_v1"
+                  id="nhnLink"
+                  onclick="nclk(event,'fot.navercorp','','');"
+                  >NAVER Corp.</a
+                ></span
+              >
+            </p>
+          </footer>
+        </div>
+      </div>
+    </div>
+    <!-- //footer -->
+    <script
+      type="text/javascript"
+      src="https://ssl.pstatic.net/static.news/mnews/resources/20230920_082039/js/generated/news.mobile.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://ssl.pstatic.net/static.news/mnews/resources/20230920_082039/js/generated/statistics.js"
+    ></script>
+    <script type="text/javascript">
+      window.onload = function () {
+        setTimeout(function () {
+          window.scrollTo(0, 1);
+        }, 100);
+      };
+      (function () {
+        try {
+          var footerLogin = jQuery(document).find("._footer_login");
+          if (footerLogin <= 0) {
+            return;
+          }
+          if (news.LoginAssistor.isLoginUser()) {
+            footerLogin.prepend(
+              "<a href=\"javascript:news.Util.logout('https://nid.naver.com/nidlogin.logout?svctype=262144&url='+encodeURIComponent(location.href));\" class=\"u_ftlk\" id=\"news_logout\" onclick=\"nclk(event,'fot.logout','','');\" >로그아웃</a>"
+            );
+          } else {
+            footerLogin.prepend(
+              '<a href="https://nid.naver.com/nidlogin.login?svctype=262144" class="u_ftlk" id="news_login" onclick="nclk(event,\'fot.login\',\'\',\'\');" >로그인</a>'
+            );
+          }
+        } catch (e) {}
+      })();
+
+      function logout(url) {
+        if (confirm("로그아웃 하시겠습니까?")) {
+          document.location.href = url;
+        }
+      }
+
+      doAfterLoadEnd(function () {
+        try {
+          GlobalMPUrlManager.init();
+        } catch (e) {}
+      });
+    </script>
+    <script>
+      var gnb_service = "news";
+      var gnb_logout = encodeURIComponent(location.href);
+      var gnb_template = "gnb_utf8";
+      var gnb_brightness = 1;
+      var gnb_item_hide_option = 128;
+
+      doAfterLoadEnd(function () {
+        try {
+          GlobalMPUrlManager.init();
+        } catch (e) {}
+      });
+
+      doAfterLoadEnd(function () {
+        if (!document.querySelector("#gnb") || isMobileDevice() === true) {
+          return;
+        }
+
+        var gnb_src =
+          "https://ssl.pstatic.net/static.gn/templates/gnb_utf8?2023092400";
+
+        // GnbHelper를 이용하여 GNB Layer를 닫을 수 있도록 지원한다.
+        if (window.jindo) {
+          jindo.LazyLoading.load(
+            gnb_src,
+            function () {
+              try {
+                getGNB();
+              } catch (e) {}
+            },
+            "utf-8"
+          );
+
+          jindo
+            .$Fn(function (oEvent) {
+              GnbHelper.attachClick(oEvent.$value().target);
+            })
+            .attach(document, "click");
+        } else if (window.jQuery) {
+          new news.JsLoader().load([gnb_src], function () {
+            try {
+              getGNB();
+            } catch (e) {}
+          });
+
+          $(document).on("click", function (event) {
+            GnbHelper.attachClick(event.target);
+          });
+        }
+      });
+    </script>
+
+    <script>
+      doAfterLoadEnd(function () {
+        try {
+          new SearchAutoComplete({
+            content: document.querySelector("._search_content"),
+            contentToggleBtn: document.querySelector(
+              "._search_content_toggle_btn"
+            ),
+            isMobile: isMobileDevice(),
+            nClickType: "newsM",
+          });
+        } catch (e) {}
+      });
+    </script>
+  </body>
+</html>

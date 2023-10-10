@@ -77,3 +77,31 @@ Docker-Compose에서 dag, log, plugin폴더를 mount하는 부분에 data 폴더
 
 ## 2. Workflow DAG 작성하기
 
+```python
+with DAG(
+    dag_id=dag_name,
+    default_args=default_args,
+    description='Get KOSPI & New Headline Data and append to previous data every 6pm on weekdays',
+    schedule_interval='0 9 * * MON-FRI', ## 18:00 KST = 09:00 UTC
+    start_date= datetime.datetime(2023, 10, 1, 00, 00),
+    catchup=False,
+    tags=[]
+) as dag:
+    get_kospi_data_task = PythonOperator(
+        task_id='get_kospi_data_task',
+        python_callable=get_kospi_data,
+    )
+    get_news_headline_task = PythonOperator(
+        task_id='get_news_headline_task',
+        python_callable=get_news_headline,
+    )
+```
+
+Kospi data와 News Headline 두개의 데이터를 매일 수집해 저장하는 간단한 Workflow를 작성하였다. 의존성을 따로 명시하지 않아 두 Task는 병렬적으로 시행된다.
+
+
+
+Airflow webserver를 통해 Schedule에 맞춰 제대로 Execution된 것 및 해당 Log를 확인할 수 있다.
+
+![workflow](./images/workflow.png)
+

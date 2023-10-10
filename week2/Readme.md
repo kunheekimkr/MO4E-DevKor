@@ -105,3 +105,4 @@ Airflow webserver를 통해 Schedule에 맞춰 제대로 Execution된 것 및 �
 
 ![workflow](./images/workflow.png)
 
+분기, Task간 데이터 전달, Slack 알림 연동 등 다양하게 해보고 싶은 것이 있는데 다른 일로 조금 바빴어서 많이 못 해 봤다. 시험기간동안 해봐야겠다.

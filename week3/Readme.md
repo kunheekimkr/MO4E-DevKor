@@ -78,3 +78,8 @@ Task에 대해 SlackNotifier는 다음과 같은 조건으로 트리거할 수 �
 - on_success_callback: Task가 성공했을 때
 - on_retry_callback: Task가 재시도 되었을 때
 - sla_miss_callback: Task가 SLA(Service Level Agreement)를 놓쳤을 때 (설정한 시간 내에 Task가 완료되지 않았을 때)
+
+## TODO
+
+- [ ] 훈련 코드 모듈화 및 DAG 작성
+- [ ] Kubernetes Executor 환경 구성

@@ -1,12 +1,22 @@
 import os
+from datetime import timedelta, datetime, date
+from pprint import pprint
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.operators.empty import EmptyOperator
+from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
+
+
+import os
 import pendulum
 from datetime import timedelta
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator, BranchPythonOperator
 
+from src.get_news_headline import get_news_headline
+from src.get_kospi_data import get_kospi_data
 
-from src.quant_algo import get_market_fundamental, select_columns, remove_row_fundamental, rank_fundamental, select_stock, print_selected_stock
 
 seoul_time = pendulum.timezone('Asia/Seoul')
 dag_name = os.path.basename(__file__).split('.')[0]
@@ -17,43 +27,40 @@ default_args = {
     'retry_delay': timedelta(minutes=1)
 }
 
+
+def branch_func(ti):
+	xcom_value = bool(ti.xcom_pull(task_ids="get_kospi_data_task"))
+	if xcom_value == True:
+		return "get_news_headline_task"
+	elif xcom_value == False:
+		return "stop_task"
+	else:
+		return None
+
+
+
 with DAG(
     dag_id=dag_name,
     default_args=default_args,
-    description='중간고사 화이팅~.~',
-    schedule_interval=timedelta(minutes=10),
+    description='Get KOSPI & New Headline Data and append to previous data every 6pm on weekdays',
+    schedule_interval='0 18 * * MON-FRI',
     start_date=pendulum.datetime(2023, 10, 9, tz=seoul_time),
     catchup=False,
-    tags=['quant', 'example']
+    tags=[]
 ) as dag:
-    get_market_fundamental_task = PythonOperator(
-        task_id='get_market_fundamental_task',
-        python_callable=get_market_fundamental,
+    get_kospi_data_task = PythonOperator(
+        task_id='get_kospi_data_task',
+        python_callable=get_kospi_data,
     )
-    
-    select_columns_task = PythonOperator(
-        task_id='select_columns_task',
-        python_callable=select_columns,
+    get_news_headline_task = PythonOperator(
+        task_id='get_news_headline_task',
+        python_callable=get_news_headline,
     )
-    
-    remove_row_fundamental_task = PythonOperator(
-        task_id='remove_row_fundamental_task',
-        python_callable=remove_row_fundamental,
+    branch_op = BranchPythonOperator(
+	    task_id="branch_task",
+	    python_callable=branch_func,
     )
-    
-    rank_fundamental_task = PythonOperator(
-        task_id='rank_fundamental_task',
-        python_callable=rank_fundamental,
-    )
-    
-    select_stock_task = PythonOperator(
-        task_id='select_stock_task',
-        python_callable=select_stock,
-    )
-    
-    print_selected_stock_task = PythonOperator(
-        task_id='print_selected_stock_task',
-        python_callable=print_selected_stock,
-    )
-    
-    get_market_fundamental_task >> select_columns_task >> remove_row_fundamental_task >> rank_fundamental_task >> select_stock_task >> print_selected_stock_task
+    stop_op = EmptyOperator(task_id="stop_task")
+	
+    get_kospi_data_task >> branch_op >> [get_news_headline_task, stop_op]
+	

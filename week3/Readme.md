@@ -31,8 +31,50 @@ get_kospi_data_task >> branch_op >> [get_news_headline_task, stop_op]
 
 UI를 통해 작업 진행을 체크하기는 불편하고, 특히 작업 시간이 길어질수록 놓칠 여지가 생긴다. 다음 상황에 대해 Slack 메시지를 전달해 오류 발생 또는 완료 파악이 가능하게 하자!
 
-- 주식 미개장일로 작업 종료
-- 데이터 저장 완료
-- 데이터 저장 실패
-- 모델 학습 완료
-- 모델 학습 실패
+- Workflow 실행 시작
+- 주식 미개장일로 Workflow 종료
+- Workflow 완료
+
+![slack_noti](./images/slack_noti.png)
+
+이 외에도 각 단계 넘어가는 부분이나, Worklflow 실패에 대해 메시지 발송이 가능하다.
+
+우선 [slack](https://api.slack.com/)에서 새 app을 만들고, Workspace에 등록한다.
+메시지 발송이 가능하도록 chat:write 와 chat:write.public permission scope를 추가한다.
+
+Airflow Web UI에서 Admin > Connections 에서 Slack에 대한 Connection을 추가한다.
+![add_connection](./images/addconnection.png)
+
+- Connection ID: 임의로 설정 (DAG 코드에서 사용한 이름)
+- Connection Type: Slack API
+- Slack API Token: Slack app 권한 부여 페이지에서 확인 가능한 Bot User OAuth Token
+
+이후 Dag에서는 Task마다 Slack API를 전송할 부분에 SlackNotifier를 사용해 주면 된다!
+
+```python
+from airflow.providers.slack.notifications.slack_notifier import SlackNotifier
+SLACK_CONNECTION_ID = "slack_conn" # Connection ID
+SLACK_CHANNEL = "airflow" # Slack에서 메시지를 전송할 채널명
+
+## 중략
+
+    get_kospi_data_task = PythonOperator(
+        task_id='get_kospi_data_task',
+        python_callable=get_kospi_data,
+		on_execute_callback=SlackNotifier(
+        	slack_conn_id=SLACK_CONNECTION_ID,
+            text="""
+			:eyes: KOSPI Market data & News Headline parsing workflow initiated ({{ds}}).:eyes:
+            """,
+            channel=SLACK_CHANNEL,
+        )
+    )
+```
+
+Task에 대해 SlackNotifier는 다음과 같은 조건으로 트리거할 수 있다.
+
+- on_execute_callback: Task가 실행되기 전
+- on_failure_callback: Task가 실패했을 때
+- on_success_callback: Task가 성공했을 때
+- on_retry_callback: Task가 재시도 되었을 때
+- sla_miss_callback: Task가 SLA(Service Level Agreement)를 놓쳤을 때 (설정한 시간 내에 Task가 완료되지 않았을 때)

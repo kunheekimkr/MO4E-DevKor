@@ -10,13 +10,13 @@ from airflow.providers.slack.notifications.slack_notifier import SlackNotifier
 
 from src.get_news_headline import get_news_headline
 from src.get_kospi_data import get_kospi_data
-
+from src.train_model import train_model
 
 seoul_time = pendulum.timezone('Asia/Seoul')
 dag_name = os.path.basename(__file__).split('.')[0]
 
 SLACK_CONNECTION_ID = "slack_conn"
-SLACK_CHANNEL = "airflow"
+SLACK_CHANNEL = "workflows"
 
 default_args = {
     'owner': 'KunheeKim',
@@ -80,6 +80,24 @@ with DAG(
             channel=SLACK_CHANNEL,
         )
 	)
+    train_model_task = PythonOperator(
+        task_id='train_model_task',
+        python_callable=train_model,
+		on_execute_callback=SlackNotifier(
+			slack_conn_id=SLACK_CONNECTION_ID,
+			text="""
+			:eyes: Model training... :eyes:
+            """,
+            channel=SLACK_CHANNEL,
+        ),
+        on_success_callback=SlackNotifier(
+			slack_conn_id=SLACK_CONNECTION_ID,
+            text="""
+			:white_check_mark: Model has finished training based on the updated data! :tada:
+            """,
+            channel=SLACK_CHANNEL,
+        )
+    )
 	
     get_kospi_data_task >> branch_op >> [get_news_headline_task, stop_op]
-	
+    get_news_headline_task >> train_model_task

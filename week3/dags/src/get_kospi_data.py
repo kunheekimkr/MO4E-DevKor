@@ -2,6 +2,7 @@ from datetime import date, datetime
 from pykrx import stock
 
 def get_kospi_data(**kwargs):
+    print("DEBUGGING")
     ## Get today's date
     today = date.today().strftime("%Y%m%d")
     #today = datetime(2023,10,29,18,0,0) # Test용 (주말)

@@ -5,7 +5,7 @@ import pendulum
 
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
-from airflow.operators.python import PythonOperator, BranchPythonOperator
+from airflow.operators.python import PythonOperator, BranchPythonOperator, ShortCircuitOperator
 from airflow.providers.slack.notifications.slack_notifier import SlackNotifier
 from airflow.providers.slack.operators.slack import SlackAPIFileOperator
 
@@ -52,7 +52,7 @@ with DAG(
 		on_execute_callback=SlackNotifier(
         	slack_conn_id=SLACK_CONNECTION_ID,
             text="""
-			:eyes: KOSPI Market data & News Headline parsing workflow initiated ({{ds}}).:eyes:
+			:eyes: KOSPI Prediction workflow initiated ({{ds}}).:eyes:
             """,
             channel=SLACK_CHANNEL,
         )
@@ -63,7 +63,7 @@ with DAG(
 		on_success_callback=SlackNotifier(
 			slack_conn_id=SLACK_CONNECTION_ID,
             text="""
-			:white_check_mark: Workflow successed parsing KOSPI market data and news headlines for today({{ds}})!:tada:
+			:white_check_mark: Workflow successed parsed KOSPI market data and news headlines for today({{ds}})!:tada:
             """,
             channel=SLACK_CHANNEL,
         )
@@ -76,11 +76,26 @@ with DAG(
 			on_success_callback=SlackNotifier(
             slack_conn_id=SLACK_CONNECTION_ID,
             text="""
-			:red_siren:Terimanted workflow since the KOSPI market is closed today({{ds}}).:red_siren:
+			:red_siren:Skipping data collection since the KOSPI market is closed today({{ds}}).:red_siren:
             """,
             channel=SLACK_CHANNEL,
         )
 	)
+    check_train_day_task = ShortCircuitOperator(
+        task_id='check_train_day_task',
+        trigger_rule='one_success',
+        python_callable=lambda: True if pendulum.now('Asia/Seoul').day in [1, 15] else False,
+        on_success_callback=SlackNotifier(
+            slack_conn_id=SLACK_CONNECTION_ID,
+            text= """
+            :calendar: Today is the day to train the model! :calendar:
+            """ if pendulum.now('Asia/Seoul').day in [1, 15] else """
+            :calendar: Today is not the day to train the model! :calendar:
+            Workflow will be terminated.
+            """,
+            channel=SLACK_CHANNEL,
+        ),
+    )
     train_model_task = PythonOperator(
         task_id='train_model_task',
         python_callable=train_model,
@@ -108,5 +123,4 @@ with DAG(
         channels=SLACK_CHANNEL,
     )
 	
-    get_kospi_data_task >> branch_op >> [get_news_headline_task, stop_op]
-    get_news_headline_task >> train_model_task >> send_plot_task
+    get_kospi_data_task >> branch_op >> [get_news_headline_task, stop_op] >> check_train_day_task >> train_model_task >> send_plot_task

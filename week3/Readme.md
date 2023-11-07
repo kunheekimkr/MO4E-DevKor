@@ -27,6 +27,8 @@ get_kospi_data_task >> branch_op >> [get_news_headline_task, stop_op]
 
 ![workflow](./images/workflow.png)
 
+이 외에도, 아래 Callback Message에서 Task 실행 결과를 전송하는 부분 등에서도 필요에 따라 적절하게 XCOM을 사용해 주었다. 
+
 ## 2. Slack 연동
 
 UI를 통해 작업 진행을 체크하기는 불편하고, 특히 작업 시간이 길어질수록 놓칠 여지가 생긴다. 다음 상황에 대해 Slack 메시지를 전달해 오류 발생 또는 완료 파악이 가능하게 하자!
@@ -54,7 +56,7 @@ Airflow Web UI에서 Admin > Connections 에서 Slack에 대한 Connection을 �
 ```python
 from airflow.providers.slack.notifications.slack_notifier import SlackNotifier
 SLACK_CONNECTION_ID = "slack_conn" # Connection ID
-SLACK_CHANNEL = "airflow" # Slack에서 메시지를 전송할 채널명
+SLACK_CHANNEL = "workflows" # Slack에서 메시지를 전송할 채널명
 
 ## 중략
 
@@ -114,6 +116,29 @@ send_plot_task = SlackAPIFileOperator(
 
 Windows 환경에서 다시 Docker를 활용해 Airflow를 구성하고 Workflow를 실행한 결과 제대로 동작하였다.
 ![windows](./images/windows.png)
+
+데이터가 매일 축적될 때마다 훈련을 하는 것은 비효율적이라 생각하였다. 이를 위해 매일 데이터 수집 workflow는 진행되고, 매달 1일과 15일에만 훈련 Task가 진행되도록 구성하기로 하였다. 이를 위해서 `ShortCircuitOperator`를 사용해 준다.
+
+`ShortCirucitOperator`는 `python_callable`의 실행 결과를 토대로 True일 경우에만 이후 Task가 실행된다.
+```python
+from airflow.operators.python import PythonOperator, BranchPythonOperator, ShortCircuitOperator
+
+check_train_day_task = ShortCircuitOperator(
+        task_id='check_train_day_task',
+        trigger_rule='one_success',
+        python_callable=lambda: True if pendulum.now('Asia/Seoul').day in [7, 15] else False,
+        on_success_callback=SlackNotifier(
+            slack_conn_id=SLACK_CONNECTION_ID,
+            text= """
+            :calendar: Today is the day to train the model! :calendar:
+            """ if pendulum.now('Asia/Seoul').day in [7, 15] else """
+            :calendar: Today is not the day to train the model! :calendar:
+            Workflow will be terminated.
+            """,
+            channel=SLACK_CHANNEL,
+        ),
+    )
+```
 
 ## TODO
 

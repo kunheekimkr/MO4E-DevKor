@@ -6,6 +6,9 @@ from torch.utils.data import DataLoader
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import datetime
 
 class LSTM(nn.Module):
     def __init__(self, input_dim, hidden_dim, seq_length, output_dim, num_layers):
@@ -143,5 +146,27 @@ def train_model(**kwargs):
     print(f'MAE: {MAE(testY_inverse, pred_inverse):.4f}')
 
     # Save the model with date
-    torch.save(model, f'/opt/airflow/data/model/model_{kwargs["ds"]}.pt')
+    # Today's date as yyyy-mm--dd
+    today = datetime.datetime.today().strftime('%Y-%m-%d')
+    torch.save(model, f'/opt/airflow/data/model/model_{today}.pt')
+
+    # parse index of test_set
+    test_set_index = test_set.index
+
+    # Plot the results
+    plt.figure(figsize=(20, 10))
+    plt.title(f"2021-05-14 ~ {today} KOSPI Predictions vs Actual")
+    plt.plot(test_set_index[20:], testY_inverse[10:], label='Actual')
+    plt.plot(test_set_index[20:], pred_inverse[10:], label='Predicted')
+
+    ## Set x-axis as dates
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.xticks(rotation=45)
+    plt.legend()
+
+    # Save the plot
+    plt.savefig(f'/opt/airflow/data/plot/plot_{today}.png')
+
     return MAE(testY_inverse, pred_inverse)

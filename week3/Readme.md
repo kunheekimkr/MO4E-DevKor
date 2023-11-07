@@ -79,19 +79,42 @@ Task에 대해 SlackNotifier는 다음과 같은 조건으로 트리거할 수 �
 - on_retry_callback: Task가 재시도 되었을 때
 - sla_miss_callback: Task가 SLA(Service Level Agreement)를 놓쳤을 때 (설정한 시간 내에 Task가 완료되지 않았을 때)
 
+File 전송이나, 더 복잡한 조건의 수행을 위해, Callback이 아니라 Slack 전송을 operator를 이용해 하나의 Task로 구성하는것도 가능하다. [src](https://airflow.apache.org/docs/apache-airflow-providers-slack/stable/operators/slack_operator_howto_guide.html)
+
+다음과 같이 모델 훈련 완료 후 결과 그래프를 전송하도록 구성하였다.
+
+```python
+from airflow.providers.slack.operators.slack import SlackAPIFileOperator
+
+send_plot_task = SlackAPIFileOperator(
+        task_id='send_plot_task',
+        slack_conn_id=SLACK_CONNECTION_ID,
+        filename="""/opt/airflow/data/plot/plot_{{ds}}.png""",
+        filetype='png',
+        channels=SLACK_CHANNEL,
+)
+```
+
+**예시와 같이 (이미지) 파일 전송을 위해서는 Slack app에 files:write 권한을 추가로 부여해야 한다!**
+
 ## 3. 훈련 Task 추가
 
-    훈련 코드를 모듈화하여 DAG에 TASK로 추가하였다. 데이터 수집 이후에 실행이되도록 설정해 주었고 훈련 시작과 결과를 Check하기 위해 Slack Operator도 추가하여 주었다.
+훈련 코드를 모듈화하여 DAG에 TASK로 추가하였다. 데이터 수집 이후에 실행이되도록 설정해 주었고 훈련 시작과 결과를 Check하기 위해 Slack Operator도 추가하여 주었다.
 
 ![workflow2](./images/workflow2.png)
 
 하지만 오랜 시간 고민하여 보았지만 모델 학습을 제대로 완료시키지 못했다. Airflow Web UI에서 훈련 Task가 시작되었음을 확인할 수 있었지만, 훈련이 완료되지 않고 Task는 종료되지 않고 계속 실행중인 상태에 머물러 있었다. Log를 확인해 보아도 별다른 에러 메시지를 확인할 수 없었다.
 
 따라서 Worker Container에 terminal 명령어를 통해 해당 코드를 실행해 보아 Segmentation Fault가 발생한다는 사실을 알 수 있었다.
+**Error 가 아니라 segfault와 같이 비정상적으로 workflow가 종료되면 Airflow에서 인식하지 못하고 실행중 상태로 표시된다.**
 ![segfault](./images/segfault.png)
-로컬 환경에서 잘 동작하는 훈련 코드가 왜 컨테이너에서는 Segmentation Fault가 발생하는지 잘 모르겠다... 혹시 아시는분 있으실까요?
+로컬 환경에서 잘 동작하는 훈련 코드가 왜 컨테이너에서는 Segmentation Fault가 발생하는지 잘 모르겠다...
+
+열심히 찾아본 결과 Apple Silicon기기에서 PyTorch를 가상화 환경에서 실행할 때 아직 불안정해 오류가 종종 발생하는 것 같다.[유사사례](https://stackoverflow.com/questions/77290003/segmentation-fault-when-using-sentencetransformer-inside-docker-container)
+
+Windows 환경에서 다시 Docker를 활용해 Airflow를 구성하고 Workflow를 실행한 결과 제대로 동작하였다.
+![windows](./images/windows.png)
 
 ## TODO
 
-- [ ] 훈련 Task 에러 해결
 - [ ] Kubernetes Executor 환경 구성

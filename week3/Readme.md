@@ -1,4 +1,4 @@
-# Week2: Apache Airflow
+# Week3: Apache Airflow
 
 ## 1. Xcom 으로 값 전달 + Branching
 
@@ -27,7 +27,7 @@ get_kospi_data_task >> branch_op >> [get_news_headline_task, stop_op]
 
 ![workflow](./images/workflow.png)
 
-이 외에도, 아래 Callback Message에서 Task 실행 결과를 전송하는 부분 등에서도 필요에 따라 적절하게 XCOM을 사용해 주었다. 
+이 외에도, 아래 Callback Message에서 Task 실행 결과를 전송하는 부분 등에서도 필요에 따라 적절하게 XCOM을 사용해 주었다.
 
 ## 2. Slack 연동
 
@@ -37,7 +37,7 @@ UI를 통해 작업 진행을 체크하기는 불편하고, 특히 작업 시간
 - 주식 미개장일로 Workflow 종료
 - Workflow 완료
 
-![slack_noti](./images/slack_noti.png)
+![slack_noti](./images/slack.png)
 
 이 외에도 각 단계 넘어가는 부분이나, Worklflow 실패에 대해 메시지 발송이 가능하다.
 
@@ -120,6 +120,7 @@ Windows 환경에서 다시 Docker를 활용해 Airflow를 구성하고 Workflow
 데이터가 매일 축적될 때마다 훈련을 하는 것은 비효율적이라 생각하였다. 이를 위해 매일 데이터 수집 workflow는 진행되고, 매달 1일과 15일에만 훈련 Task가 진행되도록 구성하기로 하였다. 이를 위해서 `ShortCircuitOperator`를 사용해 준다.
 
 `ShortCirucitOperator`는 `python_callable`의 실행 결과를 토대로 True일 경우에만 이후 Task가 실행된다.
+
 ```python
 from airflow.operators.python import PythonOperator, BranchPythonOperator, ShortCircuitOperator
 
@@ -140,6 +141,13 @@ check_train_day_task = ShortCircuitOperator(
     )
 ```
 
+이를 활용해, 데이터 수집 (또는 장휴일로 인한 수집 생략!) 이후, 1일 또는 15일인지를 `ShortCircuitOperator`로 검사해 훈련 Task를 실행하도록 구성하였다. 이때 중요한 점은, 데이터 수집, 또는 장휴일로 인한 수집 생략 중 한 가지 Case만 완료되어도 훈련 Task가 실행되어야 하므로 `trigger_rule`을 `one_success`로 설정해 준다!
+![workflow3](./images/workflow3.png)
+모델 학습이 진행되지 않는 날에는 이후 과정이 생략되는 것을 볼 수 있다.
+
+```python
+
 ## TODO
 
 - [ ] Kubernetes Executor 환경 구성
+```

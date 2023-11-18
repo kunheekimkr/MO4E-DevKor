@@ -20,7 +20,7 @@ role은 admin과 student 두가지로 구분됩니다.
 
    - Endpoint: /users
    - Method: POST
-   - Request Body:
+   - Request Body: (Example)
 
    ```json
    {
@@ -31,7 +31,7 @@ role은 admin과 student 두가지로 구분됩니다.
    ```
 
    - Description: 새로운 사용자를 추가합니다.
-   - Response:
+   - Response: (Example)
 
    ```json
    {
@@ -42,12 +42,12 @@ role은 admin과 student 두가지로 구분됩니다.
    }
    ```
 
-2. 전체 사용자 조회
+2. 전체 사용자 조회 (Example)
 
    - Endpoint: /users
    - Method: GET
    - Description: 전체 사용자 목록을 조회합니다.
-   - Response:
+   - Response: (Example)
 
    ```json
    [
@@ -71,9 +71,9 @@ role은 admin과 student 두가지로 구분됩니다.
    - Endpoint: /users/{user_id}
    - Method: GET
    - Parameters:
-     {user_id}: 조회하고자 하는 사용자의 고유한 ID
+     - user_id: 조회하고자 하는 사용자의 고유한 ID
    - Description: 특정 ID를 가진 사용자의 정보를 조회합니다.
-   - Response:
+   - Response: (Example)
 
    ```json
    {
@@ -89,8 +89,8 @@ role은 admin과 student 두가지로 구분됩니다.
    - Endpoint: /users/{user_id}
    - Method: PUT
    - Parameters:
-     {user_id}: 업데이트하고자 하는 사용자의 고유한 ID
-   - Request Body:
+     - user_id: 업데이트하고자 하는 사용자의 고유한 ID
+   - Request Body: (Example)
 
    ```json
    {
@@ -101,7 +101,7 @@ role은 admin과 student 두가지로 구분됩니다.
    ```
 
    - Description: 특정 ID를 가진 사용자의 정보를 업데이트합니다.
-   - Response:
+   - Response: (Example)
 
    ```json
    {
@@ -116,9 +116,9 @@ role은 admin과 student 두가지로 구분됩니다.
    - Endpoint: /users/{user_id}
    - Method: DELETE
    - Parameters:
-     {user_id}: 삭제하고자 하는 사용자의 고유한 ID
+     - user_id: 삭제하고자 하는 사용자의 고유한 ID
    - Description: 특정 ID를 가진 사용자를 회원 탈퇴 처리합니다.
-   - Response:
+   - Response: (Example)
    ```json
    {
      "message": "User with id 1 has been deleted"
@@ -129,63 +129,8 @@ role은 admin과 student 두가지로 구분됩니다.
 
 FastAPI를 통해 빠르게 API 구현이 가능하다.
 
-```python
-from enum import Enum
+[devkor_user_management.py](https://github.com/kunheekimkr/MO4E-DevKor/commit/d689ddabe1c39171aa7dfbc11c50ab471bbc19f9)
 
-from fastapi import FastAPI
-from pydantic import BaseModel
+## Lvl1. DB를 사용해 구현
 
-app = FastAPI()
-
-class UserRole(Enum):
-    ADMIN = "admin"
-    STUDENT = "student"
-
-class User(BaseModel):
-    id: int
-    name: str
-    age: int
-    role: UserRole
-
-class UserCreate(BaseModel):
-    name: str
-    age: int
-    role: UserRole
-
-Users = [
-    User(id=1, name="Alice", age=20, role=UserRole.ADMIN),
-    User(id=2, name="Bob", age=21, role=UserRole.STUDENT),
-    User(id=3, name="Charlie", age=22, role=UserRole.STUDENT),
-]
-
-@app.post("/users")
-def create_user(body: UserCreate):
-    new_user = User(id=len(Users)+1, name=body.name, age=body.age, role=body.role)
-    Users.append(new_user)
-    return new_user
-
-
-@app.get("/users")
-def read_users():
-    return Users
-
-@app.get("/users/{user_id}")
-def read_item(user_id: int):
-    return Users[user_id-1]
-
-@app.put("/users/{user_id}")
-def update_item(body: UserCreate, user_id: int):
-    Users[user_id-1].name = body.name
-    Users[user_id-1].age = body.age
-    Users[user_id-1].role = body.role
-    return Users[user_id-1]
-
-@app.delete("/users/{user_id}")
-def delete_item(user_id: int):
-    Users.pop(user_id-1)
-    return {
-        "message": "User with id {} has been deleted".format(user_id)
-    }
-```
-
-![swagger](./images/swagger.png)
+MongoDB를 사용해 구현해 보았다.

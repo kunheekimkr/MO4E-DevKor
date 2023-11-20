@@ -18,7 +18,7 @@ from server.models.member import (
 router = APIRouter()
 
 # Create
-@router.post("/", response_description="Member data added into the database")
+@router.post("/", response_description="Member data added into the database", status_code=201)
 async def add_member_data(member: MemberSchema = Body(...)):
     member = jsonable_encoder(member)
     new_member = await add_member(member)

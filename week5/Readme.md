@@ -138,6 +138,9 @@ MongoDB를 사용해 구현해 보았다. 변경점으로는 파일 모듈화를
 
 ToDo:
 
-- [ ] BirthDate DateTime Type검사 추가
+- [v] BirthDate DateTime Type검사 추가
 - [ ] 일부 value 만 update 가능하도록 수정
+- [ ] HTTP 응답코드 제대로 처리
+- [ ] id가 아닌 다른 property로 조회 가능하도록 수정
 - [ ] UI 구현
+- [ ] Dockerize

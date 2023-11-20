@@ -3,7 +3,7 @@
 ## Task
 
 회원 관리 시스템을 만들려고 합니다.
-회원은 id(int), name(string), age(int), role(string)이라는 property를 가지고 있습니다.
+회원은 id(string), name(string), age(int), role(string)이라는 property를 가지고 있습니다.
 role은 admin과 student 두가지로 구분됩니다.
 다음의 기능이 구현되어야 합니다.
 
@@ -133,4 +133,11 @@ FastAPI를 통해 빠르게 API 구현이 가능하다.
 
 ## Lvl1. DB를 사용해 구현
 
-MongoDB를 사용해 구현해 보았다.
+MongoDB를 사용해 구현해 보았다. 변경점으로는 파일 모듈화를 진행하였고, \_id를 사용해 각 멤버 시 자동으로 고유 id가 부여된다.
+[해당 구현 Commit](https://github.com/kunheekimkr/MO4E-DevKor/commit/7f9438e1f5c16978089658c514d39a612733ac06)
+
+ToDo:
+
+- [ ] BirthDate DateTime Type검사 추가
+- [ ] 일부 value 만 update 가능하도록 수정
+- [ ] UI 구현

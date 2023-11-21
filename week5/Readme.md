@@ -14,19 +14,21 @@ role은 admin과 student 두가지로 구분됩니다.
 
 (+ 추가) 사용자 추가
 
+- age 대신 birthdate를 저장하였다.
+
 ## API 명세
 
-1. 사용자 추가
+1. 회원 추가
 
-   - Endpoint: /users
+   - Endpoint: /member
    - Method: POST
    - Request Body: (Example)
 
    ```json
    {
-     "name": "New User",
-     "age": 20,
-     "role": "student"
+     "name": "John De",
+     "birthDate": "2014-01-05T16:59:33+00:00",
+     "role": "admin"
    }
    ```
 
@@ -35,67 +37,91 @@ role은 admin과 student 두가지로 구분됩니다.
 
    ```json
    {
-     "id": 1,
-     "name": "New User",
-     "age": 20,
-     "role": "student"
+     "data": [
+       {
+         "id": "655c0845cf243a936b29d515",
+         "name": "John De",
+         "birthDate": "2014-01-05T16:59:33Z",
+         "role": "admin"
+       }
+     ],
+     "code": 201,
+     "message": "Member added successfully."
    }
    ```
 
 2. 전체 사용자 조회 (Example)
 
-   - Endpoint: /users
+   - Endpoint: /member
    - Method: GET
    - Description: 전체 사용자 목록을 조회합니다.
    - Response: (Example)
 
    ```json
-   [
-     {
-       "id": 1,
-       "name": "New User",
-       "age": 20,
-       "role": "student"
-     },
-     {
-       "id": 2,
-       "name": "New User2",
-       "age": 25,
-       "role": "admin"
-     }
-   ]
+   {
+     "data": [
+       [
+         {
+           "id": "655b220be896c1e19d6ae8ab",
+           "name": "John Doe",
+           "birthDate": "1999-01-05T16:59:33",
+           "role": "admin"
+         },
+         {
+           "id": "655b2265b2a7ed6b8c762149",
+           "name": "John De",
+           "birthDate": "2014-01-05T16:59:33Z",
+           "role": "admin"
+         },
+         {
+           "id": "655c0845cf243a936b29d515",
+           "name": "John De",
+           "birthDate": "2014-01-05T16:59:33Z",
+           "role": "admin"
+         }
+       ]
+     ],
+     "code": 200,
+     "message": "Members data retrieved successfully"
+   }
    ```
 
 3. 특정 사용자 조회
 
-   - Endpoint: /users/{user_id}
+   - Endpoint: /member/{member_id}
    - Method: GET
    - Parameters:
-     - user_id: 조회하고자 하는 사용자의 고유한 ID
+     - member_id: 조회하고자 하는 사용자의 고유한 ID
    - Description: 특정 ID를 가진 사용자의 정보를 조회합니다.
    - Response: (Example)
 
    ```json
    {
-     "id": 1,
-     "name": "New User",
-     "age": 20,
-     "role": "student"
+     "data": [
+       {
+         "id": "655b220be896c1e19d6ae8ab",
+         "name": "John Doe",
+         "birthDate": "1999-01-05T16:59:33",
+         "role": "admin"
+       }
+     ],
+     "code": 200,
+     "message": "Member data retrieved successfully"
    }
    ```
 
 4. 사용자 정보 업데이트
 
-   - Endpoint: /users/{user_id}
+   - Endpoint: /member/{member_id}
    - Method: PUT
    - Parameters:
-     - user_id: 업데이트하고자 하는 사용자의 고유한 ID
+     - member_id: 업데이트하고자 하는 사용자의 고유한 ID
    - Request Body: (Example)
 
    ```json
    {
-     "name": "Updated Name",
-     "age": 25,
+     "name": "John An",
+     "birthDate": "2014-01-05T16:59:33+00:00",
      "role": "admin"
    }
    ```
@@ -105,23 +131,24 @@ role은 admin과 student 두가지로 구분됩니다.
 
    ```json
    {
-     "id": 1,
-     "name": "Updated Name",
-     "age": 25,
-     "role": "admin"
+     "data": ["Member with ID: 655b220be896c1e19d6ae8ab update is successful"],
+     "code": 200,
+     "message": "Member data updated successfully"
    }
    ```
 
 5. 사용자 회원 탈퇴
-   - Endpoint: /users/{user_id}
+   - Endpoint: /member/{member_id}
    - Method: DELETE
    - Parameters:
-     - user_id: 삭제하고자 하는 사용자의 고유한 ID
+     - member_id: 삭제하고자 하는 사용자의 고유한 ID
    - Description: 특정 ID를 가진 사용자를 회원 탈퇴 처리합니다.
    - Response: (Example)
    ```json
    {
-     "message": "User with id 1 has been deleted"
+     "data": ["Member with ID: 655b220be896c1e19d6ae8ab removed"],
+     "code": 200,
+     "message": "Member deleted successfully"
    }
    ```
 
@@ -129,7 +156,7 @@ role은 admin과 student 두가지로 구분됩니다.
 
 FastAPI를 통해 빠르게 API 구현이 가능하다.
 
-[devkor_user_management.py](https://github.com/kunheekimkr/MO4E-DevKor/commit/d689ddabe1c39171aa7dfbc11c50ab471bbc19f9)
+[해당 구현 Commit](https://github.com/kunheekimkr/MO4E-DevKor/commit/d689ddabe1c39171aa7dfbc11c50ab471bbc19f9)
 
 ## Lvl1. DB를 사용해 구현
 
@@ -139,8 +166,6 @@ MongoDB를 사용해 구현해 보았다. 변경점으로는 파일 모듈화를
 ToDo:
 
 - [v] BirthDate DateTime Type검사 추가
-- [ ] 일부 value 만 update 가능하도록 수정
 - [ ] HTTP 응답코드 제대로 처리
-- [ ] id가 아닌 다른 property로 조회 가능하도록 수정
 - [ ] UI 구현
 - [ ] Dockerize

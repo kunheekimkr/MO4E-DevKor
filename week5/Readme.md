@@ -175,6 +175,7 @@ Docker-compose를 통해 한번에 DB, Backend(FastAPI), Frontend(Streamlit) 이
 이 과정을 수행하는 데 가장 오래 문제가 되었던 부분은 컨테이너간 통신이었다.
 local 환경에서 실행할 떄는 단순히 Localhost의 각 서비스의 포트를 통해 통신하면 되었지만, 각각을 다른 컨테이너로 수행할 때에는 localhost를 사용하면 해당 컨테이너 내의 포트를 찾게 되므로 통신이 되지 않는다.
 따라서 Backend-Frontend 통신, Backend-DB 통신에서, Localhost가 아니라 연결하고자 하는 컨테이너의 이름을 Host로 연결해 주면 된다.
+물론 Docker-Compose에서 해당 Port들을 Expose 해주고, Front-end Container는 Host와 port mapping해 UI를 확인할 수 있도록 해주어야 한다.
 
 [해당 구현 Commit](https://github.com/kunheekimkr/MO4E-DevKor/commit/f8301fd838c0d3c80ac40c164d9b18c2a821df8d)
 

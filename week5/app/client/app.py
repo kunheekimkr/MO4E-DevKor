@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime
 import requests
 import pandas as pd
-API_URL = "http://localhost:8000/member"
+API_URL = "http://app-fastapi-server-1:8000/member"
 
 
 def create_member(member_information):

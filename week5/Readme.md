@@ -122,7 +122,7 @@ role은 admin과 student 두가지로 구분됩니다.
    {
      "name": "John An",
      "birthDate": "2014-01-05T16:59:33+00:00",
-     "role": "admin"
+     "role": "student"
    }
    ```
 
@@ -131,7 +131,14 @@ role은 admin과 student 두가지로 구분됩니다.
 
    ```json
    {
-     "data": ["Member with ID: 655b220be896c1e19d6ae8ab update is successful"],
+     "data": [
+       {
+         "id": "655b2265b2a7ed6b8c762149",
+         "name": "John An",
+         "birthDate": "2014-01-05T16:59:33",
+         "role": "student"
+       }
+     ],
      "code": 200,
      "message": "Member data updated successfully"
    }
@@ -166,6 +173,6 @@ MongoDB를 사용해 구현해 보았다. 변경점으로는 파일 모듈화를
 ToDo:
 
 - [v] BirthDate DateTime Type검사 추가
-- [ ] HTTP 응답코드 제대로 처리
+- [v] HTTP 응답코드 제대로 처리
 - [ ] UI 구현
 - [ ] Dockerize

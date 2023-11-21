@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException
 from fastapi.encoders import jsonable_encoder
 
 from server.database import (
@@ -15,6 +15,7 @@ from server.models.member import (
     UpdateMemberModel
 )
 
+USER_NOT_FOUND = HTTPException(status_code=404, detail="User not found.")
 router = APIRouter()
 
 # Create
@@ -38,23 +39,19 @@ async def get_member_data(id):
     member = await retrieve_member(id)
     if member:
         return ResponseModel(member, 200, "Member data retrieved successfully")
-    return ErrorResponseModel("An error occurred.", 404, "Member doesn't exist.")
-
+    raise USER_NOT_FOUND
 # Update
 @router.put("/{id}")
 async def update_member_data(id: str, req: UpdateMemberModel = Body(...)):
     req = {k: v for k, v in req.dict().items() if v is not None}
-    updated_member = await update_member(id, req)
-    if updated_member:
+    update_result = await update_member(id, req)
+    if update_result[0]:
         return ResponseModel(
-            "Member with ID: {} update is successful".format(id),200,
+            update_result[2],update_result[1],
             "Member data updated successfully",
         )
-    return ErrorResponseModel(
-        "An error occurred",
-        404,
-        "There was an error updating the member data.",
-    )
+    
+    raise HTTPException(status_code=update_result[1], detail=update_result[2])
 
 # Delete
 @router.delete("/{id}", response_description="Member data deleted from the database")
@@ -64,6 +61,4 @@ async def delete_member_data(id: str):
         return ResponseModel(
             "Member with ID: {} removed".format(id), 200, "Member deleted successfully"
         )
-    return ErrorResponseModel(
-        "An error occurred", 404, "Member with id {0} doesn't exist".format(id)
-    )
+    raise USER_NOT_FOUND

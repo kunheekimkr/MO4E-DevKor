@@ -47,16 +47,18 @@ async def retrieve_member(id: str) -> dict:
 async def update_member(id: str, data: dict):
     # Return false if an empty request body is sent.
     if len(data) < 1:
-        return False
+        return (False, 400, "No fields to update provided.")
     member = await member_collection.find_one({"_id": ObjectId(id)})
     if member:
         updated_member = await member_collection.update_one(
             {"_id": ObjectId(id)}, {"$set": data}
         )
         if updated_member:
-            return True
-        return False
-
+            updated_member = await member_collection.find_one({"_id": ObjectId(id)})
+            return (True, 200, member_helper(updated_member))
+        return (False, 500, "An Error Occured While Updating The Member")
+    else:
+        return (False, 404, "Member not found")
 
 # Delete a member from the database
 async def delete_member(id: str):

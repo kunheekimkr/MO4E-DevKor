@@ -169,9 +169,17 @@ MongoDB를 사용해 구현해 보았다. 변경점으로는 파일 모듈화를
 Streamlit을 통해 간단히 UI를 구성하였다.
 [해당 구현 Commit](https://github.com/kunheekimkr/MO4E-DevKor/commit/1027ffb0228bf79838e78fb58b723d8e89fe9940)
 
-ToDo:
+## Lvl3. Dockerize
 
-- [v] BirthDate DateTime Type검사 추가
-- [v] HTTP 응답코드 제대로 처리
-- [v] UI 구현
-- [ ] Dockerize
+Docker-compose를 통해 한번에 DB, Backend(FastAPI), Frontend(Streamlit) 이미지를 빌드하고 컨테이너를 실행할 수 있도록 하였다.
+이 과정을 수행하는 데 가장 오래 문제가 되었던 부분은 컨테이너간 통신이었다.
+local 환경에서 실행할 떄는 단순히 Localhost의 각 서비스의 포트를 통해 통신하면 되었지만, 각각을 다른 컨테이너로 수행할 때에는 localhost를 사용하면 해당 컨테이너 내의 포트를 찾게 되므로 통신이 되지 않는다.
+따라서 Backend-Frontend 통신, Backend-DB 통신에서, Localhost가 아니라 연결하고자 하는 컨테이너의 이름을 Host로 연결해 주면 된다.
+
+[해당 구현 Commit](https://github.com/kunheekimkr/MO4E-DevKor/commit/f8301fd838c0d3c80ac40c164d9b18c2a821df8d)
+
+### Demo Screenshots
+
+[1](./images/1.png)
+[2](./images/2.png)
+[3](./images/3.png)

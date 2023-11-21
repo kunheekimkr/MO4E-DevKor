@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.encoders import jsonable_encoder
 
-from server.database import (
+from database import (
     add_member,
     delete_member,
     retrieve_member,
     retrieve_members,
     update_member,
 )
-from server.models.member import (
-    ErrorResponseModel,
+from models.member import (
     ResponseModel,
     MemberSchema,
     UpdateMemberModel
@@ -19,14 +18,14 @@ USER_NOT_FOUND = HTTPException(status_code=404, detail="User not found.")
 router = APIRouter()
 
 # Create
-@router.post("/", response_description="Member data added into the database", status_code=201)
+@router.post("", response_description="Member data added into the database", status_code=201)
 async def add_member_data(member: MemberSchema = Body(...)):
     member = jsonable_encoder(member)
     new_member = await add_member(member)
     return ResponseModel(new_member, 201, "Member added successfully.")
 
 # Read
-@router.get("/", response_description="Members retrieved")
+@router.get("", response_description="Members retrieved")
 async def get_members():
     members = await retrieve_members()
     if members:

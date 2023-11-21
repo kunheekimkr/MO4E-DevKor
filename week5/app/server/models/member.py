@@ -19,9 +19,9 @@ class MemberSchema(BaseModel):
 
 
 class UpdateMemberModel(BaseModel):
-    name: Optional[str]
-    birthDate: Optional[datetime]
-    role: Optional[Literal["admin", "student"]]
+    name: Optional[str] = None
+    birthDate: Optional[datetime] = None
+    role: Optional[Literal["admin", "student"]] = None
 
     class Config:
         schema_extra = {

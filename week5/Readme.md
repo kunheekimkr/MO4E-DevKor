@@ -168,7 +168,9 @@ FastAPI를 통해 빠르게 API 구현이 가능하다.
 ## Lvl1. DB를 사용해 구현
 
 MongoDB를 사용해 구현해 보았다. 변경점으로는 파일 모듈화를 진행하였고, \_id를 사용해 각 멤버 시 자동으로 고유 id가 부여된다.
-[해당 구현 Commit](https://github.com/kunheekimkr/MO4E-DevKor/commit/7f9438e1f5c16978089658c514d39a612733ac06)
+[해당 구현 Commit](https://github.com/kunheekimkr/MO4E-DevKor/commit/5a58e1c454e9b2d0662c4cca1fa628375b48c3cb)
+
+[Docs](./images/swagger.png)
 
 ToDo:
 

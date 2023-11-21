@@ -35,7 +35,7 @@ class UpdateMemberModel(BaseModel):
 
 def ResponseModel(data, code, message):
     return {
-        "data": [data],
+        "data": data,
         "code": code,
         "message": message,
     }

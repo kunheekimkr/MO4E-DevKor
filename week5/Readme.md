@@ -37,14 +37,12 @@ role은 admin과 student 두가지로 구분됩니다.
 
    ```json
    {
-     "data": [
-       {
-         "id": "655c0845cf243a936b29d515",
-         "name": "John De",
-         "birthDate": "2014-01-05T16:59:33Z",
-         "role": "admin"
-       }
-     ],
+     "data": {
+       "id": "655c0845cf243a936b29d515",
+       "name": "John De",
+       "birthDate": "2014-01-05T16:59:33Z",
+       "role": "admin"
+     },
      "code": 201,
      "message": "Member added successfully."
    }
@@ -60,26 +58,24 @@ role은 admin과 student 두가지로 구분됩니다.
    ```json
    {
      "data": [
-       [
-         {
-           "id": "655b220be896c1e19d6ae8ab",
-           "name": "John Doe",
-           "birthDate": "1999-01-05T16:59:33",
-           "role": "admin"
-         },
-         {
-           "id": "655b2265b2a7ed6b8c762149",
-           "name": "John De",
-           "birthDate": "2014-01-05T16:59:33Z",
-           "role": "admin"
-         },
-         {
-           "id": "655c0845cf243a936b29d515",
-           "name": "John De",
-           "birthDate": "2014-01-05T16:59:33Z",
-           "role": "admin"
-         }
-       ]
+       {
+         "id": "655b220be896c1e19d6ae8ab",
+         "name": "John Doe",
+         "birthDate": "1999-01-05T16:59:33",
+         "role": "admin"
+       },
+       {
+         "id": "655b2265b2a7ed6b8c762149",
+         "name": "John De",
+         "birthDate": "2014-01-05T16:59:33Z",
+         "role": "admin"
+       },
+       {
+         "id": "655c0845cf243a936b29d515",
+         "name": "John De",
+         "birthDate": "2014-01-05T16:59:33Z",
+         "role": "admin"
+       }
      ],
      "code": 200,
      "message": "Members data retrieved successfully"
@@ -97,14 +93,12 @@ role은 admin과 student 두가지로 구분됩니다.
 
    ```json
    {
-     "data": [
-       {
-         "id": "655b220be896c1e19d6ae8ab",
-         "name": "John Doe",
-         "birthDate": "1999-01-05T16:59:33",
-         "role": "admin"
-       }
-     ],
+     "data": {
+       "id": "655b220be896c1e19d6ae8ab",
+       "name": "John Doe",
+       "birthDate": "1999-01-05T16:59:33",
+       "role": "admin"
+     },
      "code": 200,
      "message": "Member data retrieved successfully"
    }
@@ -131,14 +125,12 @@ role은 admin과 student 두가지로 구분됩니다.
 
    ```json
    {
-     "data": [
-       {
-         "id": "655b2265b2a7ed6b8c762149",
-         "name": "John An",
-         "birthDate": "2014-01-05T16:59:33",
-         "role": "student"
-       }
-     ],
+     "data": {
+       "id": "655b2265b2a7ed6b8c762149",
+       "name": "John An",
+       "birthDate": "2014-01-05T16:59:33",
+       "role": "student"
+     },
      "code": 200,
      "message": "Member data updated successfully"
    }
@@ -153,7 +145,7 @@ role은 admin과 student 두가지로 구분됩니다.
    - Response: (Example)
    ```json
    {
-     "data": ["Member with ID: 655b220be896c1e19d6ae8ab removed"],
+     "data": "Member with ID: 655b220be896c1e19d6ae8ab removed",
      "code": 200,
      "message": "Member deleted successfully"
    }
@@ -172,9 +164,14 @@ MongoDB를 사용해 구현해 보았다. 변경점으로는 파일 모듈화를
 
 [Docs](./images/swagger.png)
 
+## Lvl2. UI 구현
+
+Streamlit을 통해 간단히 UI를 구성하였다.
+[해당 구현 Commit](https://github.com/kunheekimkr/MO4E-DevKor/commit/1027ffb0228bf79838e78fb58b723d8e89fe9940)
+
 ToDo:
 
 - [v] BirthDate DateTime Type검사 추가
 - [v] HTTP 응답코드 제대로 처리
-- [ ] UI 구현
+- [v] UI 구현
 - [ ] Dockerize

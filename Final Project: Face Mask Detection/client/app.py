@@ -18,7 +18,11 @@ if img_file is not None:
     ## Upload Image to S3 using presigned URL
 
     # Get presigned URL
-    response = requests.get(API_URL+"/create-s3-upload-url?object_name="+img_file.name)
+    response = requests.get(API_URL+"/get-s3-upload-url?object_name="+img_file.name)
+    if response.status_code != 200:
+        st.write("Error getting presigned URL from S3")
+        st.stop()
+        
     presigned_post = response.json()
 
     # Upload image to S3
@@ -29,11 +33,18 @@ if img_file is not None:
         st.write("Upload successful!")
 
 
-        # Write image URL to MongoDB
+        # Write image record to database
+        image_record = {
+            "fileName": img_file.name,
+            "predicted": False,
+            "is_correct": False
+        }
 
-
-
-
+        response = requests.post(API_URL+"/create-image-record", json=image_record)
+        if response.status_code == 200:
+            st.write("Image record created successfully! Predicting soon...")
+        else:
+            st.write("Image record creation failed. Please try again.")
 
     else:
         st.write("Upload failed. Please try again.")

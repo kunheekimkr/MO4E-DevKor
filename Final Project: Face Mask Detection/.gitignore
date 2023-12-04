@@ -1,0 +1,4 @@
+/ml/dataset
+/ml/model/model_10.pt
+/ml/model/test.ipynb
+.env

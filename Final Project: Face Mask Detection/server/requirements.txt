@@ -1,0 +1,9 @@
+fastapi
+pydantic
+uvicorn
+motor
+pymongo
+typing
+typing_extensions
+datetime
+boto3

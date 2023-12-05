@@ -25,3 +25,8 @@ async def create_image_record(image_record: ImageRecordModel = Body(...), servic
 async def update_image_record(image_record: ImageRecordModel = Body(...), service: ImageService = Depends()):
     result = await service.update_image_record(image_record)
     return result
+
+@router.post('/make-prediction', response_model= str)
+async def make_prediction(image_record: ImageRecordModel = Body(...), service: ImageService = Depends()):
+    result = service.make_prediction(image_record)
+    return result

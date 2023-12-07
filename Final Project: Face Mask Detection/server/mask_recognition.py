@@ -1,5 +1,7 @@
 ## Code Referenced from https://pseudo-lab.github.io/Tutorial-Book/chapters/object-detection/Ch5-Faster-R-CNN.html
 
+from io import BytesIO
+import json
 import matplotlib
 matplotlib.use('Agg') # to work in Celery Worker
 
@@ -56,31 +58,44 @@ def plot_image_from_output(img, pred, upload_info, file_name):
 
         ax.add_patch(rect)
     plt.axis('off')
-    plt.savefig('output.png', bbox_inches='tight', pad_inches=0, transparent=True)
-    # upload savefig to s3
-    # Upload image to S3
+    # plt.savefig('output.png', bbox_inches='tight', pad_inches=0, transparent=True)
 
-    img_file = open('output.png', 'rb')
-    files = {'file': (  "inputs/" + file_name , img_file)}
+    # Upload image to S3
+    # plt to image
+    buf = BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0, transparent=True)
+    buf.seek(0)
+    files = {'file': (  "inputs/" + file_name , buf)}
     response = requests.post(upload_info['url'], data=upload_info['fields'], files=files)
     return response.status_code
 
 
 
-def mask_recognition(original_img, upload_info, file_name):
+def mask_recognition(image_url, upload_info, file_name):
+    # Download image
+    image = requests.get(image_url).content
+    image = Image.open(BytesIO(image)).convert("RGB")
+
+
     data_transform = transforms.Compose([  # transforms.Compose : list 내의 작업을 연달아 할 수 있게 호출하는 클래스
         transforms.ToTensor() # ToTensor : numpy 이미지에서 torch 이미지로 변경
     ])
     model = get_model_instance_segmentation(4)
-    device = torch.device('cpu')
+    device = torch.device('cpu') # change device if GPU is available
     model.to(device)
     model.load_state_dict(torch.load(f'model_10.pt', map_location=device))
 
     # Create Prediction on sample.png   
     with torch.no_grad():
-        img = data_transform(original_img).to(device)
+        img = data_transform(image).to(device)
         img = img.unsqueeze(0)
         pred = make_prediction(model, img, 0.5)
         img = img.squeeze(0)
         result = plot_image_from_output(img, pred[0], upload_info, file_name)
-        return result
+        if result == 204 :
+            # pred to json
+            predictions = {}
+            predictions['boxes'] = pred[0]['boxes'].tolist()
+            predictions['labels'] = pred[0]['labels'].tolist()
+            predictions['scores'] = pred[0]['scores'].tolist()
+            return json.dumps(predictions)

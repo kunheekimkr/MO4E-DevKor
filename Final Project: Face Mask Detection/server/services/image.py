@@ -1,8 +1,7 @@
 from fastapi import Depends
 import boto3
-import os
 
-from schemas.image import S3URL, ImageRecordModel
+from schemas.image import S3URL, ImageRecordModel, PredictionResultModel
 import config.database as db
 from tasks import mask_recognition_task
 
@@ -11,17 +10,6 @@ class ImageService():
         pass
     
     def get_s3_upload_url(self, object_name:str) -> S3URL:
-        """Generate a presigned URL S3 POST request to upload a file
-        :param bucket_name: string
-        :param object_name: string
-        :param fields: Dictionary of prefilled form fields
-        :param conditions: List of conditions to include in the policy
-        :param expiration: Time in seconds for the presigned URL to remain valid
-        :return: Dictionary with the following keys:
-            url: URL to post to
-            fields: Dictionary of form fields and values to submit with the POST
-        :return: None if error.
-        """
 
         # Generate a presigned S3 POST URL
         s3_client = boto3.client('s3')
@@ -50,23 +38,28 @@ class ImageService():
         image_url = self.get_s3_download_url("inputs/" + image_record.fileName)
         upload_info = self.get_s3_upload_url("results/" + image_record.fileName)
         task = mask_recognition_task.delay(image_url, upload_info, image_record.fileName)
+        return task.id
 
-        results: int
-        try:
-            results =task.get(timeout=60)
+    def get_prediction_result(self, fileName:str, task_id:str) -> PredictionResultModel:
+        task = mask_recognition_task.AsyncResult(task_id)
+        if task.ready():
+            predictions = task.get(timeout=60)
+            print(predictions)
             task.forget()
-            results = results
             self.update_image_record({
-                "fileName": image_record.fileName,
+                "fileName": fileName,
                 "predicted": True,
                 "is_correct": True
             })
-        except task.exceptions.TimeoutError:
-            results = 500
-
-        result_info = self.get_s3_download_url("results/" + image_record.fileName)
-        return result_info
-
+            return {
+                "done": True,
+                "result_image_url": self.get_s3_download_url("results/" + fileName)
+            }
+        else:
+            return {
+                "done": False,
+                "result_image_url": ""
+            }
 
 
 

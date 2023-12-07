@@ -1,13 +1,19 @@
+from time import sleep
 import streamlit as st
 from datetime import datetime
 import requests
 import pandas as pd
 from PIL import Image
 
-
-img_file = st.file_uploader("Upload", type="png")
 API_URL = "http://localhost:8000/image"
 
+def update_image_record(image_record, is_correct):
+    image_record["is_correct"] = is_correct
+    requests.put(API_URL+"/update-image-record", json=image_record)
+        
+
+st.title("Face Mask Detection!")
+img_file = st.file_uploader("Upload", type="png")
 if img_file is not None:
     
     # Rename filename to current timestamp
@@ -38,29 +44,31 @@ if img_file is not None:
             "is_correct": False
         }
 
+        #Create Image Record & make Prediction
         response = requests.post(API_URL+"/create-image-record", json=image_record)
-        if response.status_code == 200:
-            st.write("Image record created successfully! Results will be shown soon...")
-            
-            result_image_url = requests.post(API_URL+"/make-prediction", json=image_record).json()
-            st.image(result_image_url)
-            
+        if response.status_code == 200 :
+            st.write("Image record created successfully!")
 
+            # Make prediction
+            task_id = requests.post(API_URL+"/make-prediction", json=image_record).json()
+
+            #  Exponential backoff on fetching prediction result
+            max_retries = 5
+            retries = 0
+
+            while retries < max_retries:
+                retries += 1
+                response = requests.get(API_URL+"/get-prediction-result?fileName="+img_file.name + "&task_id=" + task_id)
+                if response.status_code == 200:
+                    result_info = response.json()
+                    if result_info["done"]:
+                        st.write("Prediction result ready!")
+                        st.image(result_info["result_image_url"])
+                        break
+                sleep(2**retries)
 
         else:
             st.write("Image record creation failed. Please try again.")
 
     else:
         st.write("Upload failed. Please try again.")
-        
-    # change img_file to PIL.Image
-    #img_file = Image.open(img_file).convert("RGB")
-
-    # current_time = datetime.now() 
-    # filename = current_time.isoformat().replace(":", "_")
-    # img_file.name = filename
-
-    # Display image
-    # st.image(img_file)
-    # mask_recognition(img_file)
-    # st.image('output.png')

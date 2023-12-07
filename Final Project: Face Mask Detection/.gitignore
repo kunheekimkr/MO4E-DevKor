@@ -3,3 +3,6 @@
 /ml/model/test.ipynb
 /server/model_10.pt
 .env
+*.pyc
+__pycache__/
+*.*.pyc

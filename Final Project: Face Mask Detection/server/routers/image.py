@@ -30,3 +30,8 @@ async def update_image_record(image_record: ImageRecordModel = Body(...), servic
 async def make_prediction(image_record: ImageRecordModel = Body(...), service: ImageService = Depends()):
     result = service.make_prediction(image_record)
     return result
+
+@router.get('/get-prediction-result', response_model= dict)
+async def get_prediction_result(fileName: str, task_id: str, service: ImageService = Depends()):
+    result = service.get_prediction_result(fileName, task_id)
+    return result

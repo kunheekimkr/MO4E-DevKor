@@ -11,3 +11,7 @@ class ImageRecordModel(BaseModel):
     predicted: bool = False
     is_correct: bool = False
     
+
+class PredictionResultModel(BaseModel):
+    done: bool
+    result_image_url: str
